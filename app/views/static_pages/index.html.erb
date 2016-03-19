@@ -1,0 +1,46 @@
+<% if @logged_in %>
+    You're logged in, congrats<br />
+    <a href="javascript:alert('np')">ok, thanks for letting us know</a><br />
+    <a href="/deactivate">delete/deactivate/disconnect yourself from bottleneck here</a>
+<% else %>
+    <!--<%= link_to 'Login with Facebook', '/auth/facebook' %>-->
+    <button id="fb-login-button">Login with Facebook</button>
+    <script type="text/javascript">
+      $.ajaxSetup({ cache: true });
+      $.getScript('//connect.facebook.net/en_US/sdk.js', function(){
+        $('#fb-login-button').click(function() {
+          FB.init({
+            appId: '<%= ENV['FACEBOOK_APP_ID'] %>',
+            version: 'v2.0' // or v2.0, v2.1, v2.2, v2.3
+          });
+
+          var statusCallback = function(response) {
+            if (response.status == 'connected') {
+              console.log(response);
+              FB.api('/me', function(meResponse) {
+                console.log(JSON.stringify(response));
+
+                $.post('/users/authenticate', {
+                  access_token: response.authResponse.accessToken,
+                  expires_in: response.authResponse.expiresIn,
+                  name: meResponse.name,
+                  facebook_id: meResponse.id
+                }, function authenticated(response) {
+                  if (response.success) {
+                    window.location.reload();
+                  } else {
+                    alert('Error signing in--see console for details');
+                    console.log(JSON.stringify(response));
+                    console.log(response);
+                  }
+                })
+              });
+            } else {
+              FB.login(statusCallback, {scope: 'manage_notifications'});
+            }
+          };
+          FB.getLoginStatus(statusCallback);
+        })
+      });
+    </script>
+<% end %>

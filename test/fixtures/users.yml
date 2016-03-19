@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  access_token: MyString
+  token_secret: MyString
+  token_expiry: 1
+
+two:
+  access_token: MyString
+  token_secret: MyString
+  token_expiry: 1
